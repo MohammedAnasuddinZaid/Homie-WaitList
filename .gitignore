@@ -43,3 +43,6 @@ next-env.d.ts
 # Database
 data/
 *.db
+
+# OpenCode harness
+AGENTS.md
