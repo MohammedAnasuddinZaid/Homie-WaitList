@@ -6,6 +6,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import Particles from "@/components/Particles";
 import Parallax from "@/components/Parallax";
 import LetterReveal from "@/components/LetterReveal";
+import FeatureRow from "@/components/FeatureRow";
 import { getCount } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -248,27 +249,7 @@ export default async function Home() {
           <div>
             {FEATURES.map((f, i) => (
               <Reveal key={f.n} delay={i * 60}>
-                <a
-                  href="#waitlist"
-                  className="group flex flex-col md:flex-row md:items-baseline gap-3 md:gap-10 py-10 md:py-12 border-t border-slate-soft last:border-b no-underline feature-row"
-                  onMouseMove={(e) => {
-                    const r = e.currentTarget.getBoundingClientRect();
-                    e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
-                    e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
-                  }}
-                >
-                  <span className="font-mono text-xs tracking-[0.25em] text-faint group-hover:text-blue transition-colors w-14 flex-none">
-                    {f.n}
-                  </span>
-                  <div className="md:w-72 flex-none">
-                    <h3 className="font-display text-2xl md:text-[28px] font-semibold tracking-tight text-bone group-hover:text-blue transition-colors">
-                      {f.title}
-                    </h3>
-                  </div>
-                  <p className="text-dim leading-relaxed max-w-xl group-hover:text-bone/70 transition-colors">
-                    {f.body}
-                  </p>
-                </a>
+                <FeatureRow index={f.n} title={f.title} body={f.body} />
               </Reveal>
             ))}
           </div>
