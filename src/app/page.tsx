@@ -5,6 +5,7 @@ import FilmPlayer from "@/components/FilmPlayer";
 import ScrollProgress from "@/components/ScrollProgress";
 import Particles from "@/components/Particles";
 import Parallax from "@/components/Parallax";
+import LetterReveal from "@/components/LetterReveal";
 import { getCount } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -119,6 +120,7 @@ export default async function Home() {
           aria-hidden="true"
         />
         <Particles />
+        <div className="gradient-mesh" aria-hidden="true" />
         <div className="blob" style={{ width: 500, height: 500, top: "10%", left: "5%", background: "#4490ff" }} aria-hidden="true" />
         <div className="blob" style={{ width: 400, height: 400, bottom: "15%", right: "10%", background: "#4490ff", animationDelay: "-6s" }} aria-hidden="true" />
         {/* scrims */}
@@ -154,7 +156,7 @@ export default async function Home() {
           </p>
 
           <div
-            className="rise flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mt-12"
+            className="rise flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 mt-12"
             style={{ animationDelay: "0.6s" }}
           >
             <a href="#waitlist" className="pill pill-solid magnetic">
@@ -212,17 +214,17 @@ export default async function Home() {
           </Reveal>
           <Reveal delay={80}>
             <h2 className="display text-4xl md:text-6xl lg:text-7xl text-bone">
-              It sees what you see<span className="accent">.</span>
+              <LetterReveal text="It sees what you see" accent="." baseDelay={200} />
             </h2>
           </Reveal>
           <Reveal delay={160}>
             <h2 className="display text-4xl md:text-6xl lg:text-7xl text-bone mt-4">
-              It reasons where you work<span className="accent">.</span>
+              <LetterReveal text="It reasons where you work" accent="." baseDelay={400} />
             </h2>
           </Reveal>
           <Reveal delay={240}>
             <h2 className="display text-4xl md:text-6xl lg:text-7xl text-bone mt-4">
-              It answers in place<span className="accent">.</span>
+              <LetterReveal text="It answers in place" accent="." baseDelay={600} />
             </h2>
           </Reveal>
         </div>
@@ -248,7 +250,12 @@ export default async function Home() {
               <Reveal key={f.n} delay={i * 60}>
                 <a
                   href="#waitlist"
-                  className="group flex flex-col md:flex-row md:items-baseline gap-3 md:gap-10 py-10 md:py-12 border-t border-slate-soft last:border-b no-underline"
+                  className="group flex flex-col md:flex-row md:items-baseline gap-3 md:gap-10 py-10 md:py-12 border-t border-slate-soft last:border-b no-underline feature-row"
+                  onMouseMove={(e) => {
+                    const r = e.currentTarget.getBoundingClientRect();
+                    e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                    e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+                  }}
                 >
                   <span className="font-mono text-xs tracking-[0.25em] text-faint group-hover:text-blue transition-colors w-14 flex-none">
                     {f.n}
@@ -386,6 +393,7 @@ export default async function Home() {
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-blue opacity-[0.05] blur-[140px] pointer-events-none"
           aria-hidden="true"
         />
+        <div className="gradient-mesh" aria-hidden="true" />
         <div className="blob" style={{ width: 360, height: 360, top: "10%", left: "5%", background: "#4490ff" }} aria-hidden="true" />
         <div className="blob" style={{ width: 300, height: 300, bottom: "10%", right: "8%", background: "#4490ff", animationDelay: "-9s" }} aria-hidden="true" />
         <div className="relative max-w-2xl mx-auto text-center">

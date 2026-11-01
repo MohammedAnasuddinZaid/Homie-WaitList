@@ -33,7 +33,7 @@ export default function FilmPlayer() {
   };
 
   return (
-    <div className="relative bg-ink aspect-video w-full overflow-hidden group">
+    <div className="relative bg-ink aspect-video w-full overflow-hidden group glow-border">
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full"
@@ -44,6 +44,7 @@ export default function FilmPlayer() {
         onEnded={handleEnded}
         onClick={toggle}
       />
+      <div className="scan-line" aria-hidden="true" />
 
       {/* overlay */}
       {!playing && (
