@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import CursorSpotlight from "@/components/CursorSpotlight";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://homie-waitlist.vercel.app"),
@@ -43,6 +44,7 @@ export default function RootLayout({
       </head>
       <body>
         <div className="grain" aria-hidden="true" />
+        <CursorSpotlight />
         {children}
       </body>
     </html>

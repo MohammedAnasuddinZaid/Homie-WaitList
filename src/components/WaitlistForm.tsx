@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BASE_COUNT } from "@/lib/constants";
+import Confetti from "@/components/Confetti";
 
 type Status = "idle" | "loading" | "success" | "error" | "duplicate";
 
@@ -15,6 +16,7 @@ export default function WaitlistForm({ initialCount }: { initialCount: number })
   const [count, setCount] = useState<number | null>(initialCount);
   const [emailTouched, setEmailTouched] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [confettiTrigger, setConfettiTrigger] = useState(0);
 
   useEffect(() => {
     fetch("/api/waitlist/count")
@@ -46,6 +48,7 @@ export default function WaitlistForm({ initialCount }: { initialCount: number })
         setStatus("success");
         setMessage(data.message || "You're in.");
         if (typeof data.count === "number") setCount(data.count);
+        setConfettiTrigger((t) => t + 1);
       } else if (res.status === 409) {
         setStatus("duplicate");
         setMessage(data.error || "You're already on the list.");
@@ -70,7 +73,8 @@ export default function WaitlistForm({ initialCount }: { initialCount: number })
   return (
     <div className="w-full max-w-md mx-auto">
       {status === "success" ? (
-        <div className="py-6 animate-fade-in">
+        <div className="py-6 animate-fade-in relative">
+          <Confetti trigger={confettiTrigger} />
           <SuccessMark />
           <p className="text-2xl font-semibold text-bone mt-8 mb-2 font-display">You&apos;re in.</p>
           <p className="text-dim leading-relaxed">{message}</p>

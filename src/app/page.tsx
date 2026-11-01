@@ -81,13 +81,13 @@ export default async function Home() {
             </span>
           </a>
           <div className="flex items-center gap-7 text-[13px] text-dim">
-            <a href="#features" className="hidden sm:inline hover:text-blue transition-colors">
+            <a href="#features" className="hidden sm:inline animated-underline hover:text-blue transition-colors">
               Features
             </a>
-            <a href="#film" className="hidden sm:inline hover:text-blue transition-colors">
+            <a href="#film" className="hidden sm:inline animated-underline hover:text-blue transition-colors">
               Film
             </a>
-            <a href="#how" className="hidden sm:inline hover:text-blue transition-colors">
+            <a href="#how" className="hidden sm:inline animated-underline hover:text-blue transition-colors">
               How it works
             </a>
             <a
@@ -119,6 +119,8 @@ export default async function Home() {
           aria-hidden="true"
         />
         <Particles />
+        <div className="blob" style={{ width: 500, height: 500, top: "10%", left: "5%", background: "#4490ff" }} aria-hidden="true" />
+        <div className="blob" style={{ width: 400, height: 400, bottom: "15%", right: "10%", background: "#4490ff", animationDelay: "-6s" }} aria-hidden="true" />
         {/* scrims */}
         <div className="absolute inset-0 bg-gradient-to-b from-void via-void/20 to-void pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-r from-void/85 via-void/35 to-transparent pointer-events-none" />
@@ -137,7 +139,7 @@ export default async function Home() {
           >
             Your screen.
             <br />
-            <span className="accent">Your AI.</span>
+            <span className="accent text-shimmer">Your AI.</span>
           </h1>
 
           <p
@@ -152,16 +154,19 @@ export default async function Home() {
           </p>
 
           <div
-            className="rise flex flex-col sm:flex-row items-center gap-4 mt-12"
+            className="rise flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mt-12"
             style={{ animationDelay: "0.6s" }}
           >
-            <a href="#waitlist" className="pill pill-solid">
+            <a href="#waitlist" className="pill pill-solid magnetic">
               Join the waitlist
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
             </a>
-            <a href="#film" className="pill pill-outline">
+            <span className="hidden sm:inline font-mono text-[10px] tracking-[0.3em] uppercase text-faint">
+              or
+            </span>
+            <a href="#film" className="pill pill-outline magnetic">
               Watch the film
             </a>
           </div>
@@ -381,6 +386,8 @@ export default async function Home() {
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-blue opacity-[0.05] blur-[140px] pointer-events-none"
           aria-hidden="true"
         />
+        <div className="blob" style={{ width: 360, height: 360, top: "10%", left: "5%", background: "#4490ff" }} aria-hidden="true" />
+        <div className="blob" style={{ width: 300, height: 300, bottom: "10%", right: "8%", background: "#4490ff", animationDelay: "-9s" }} aria-hidden="true" />
         <div className="relative max-w-2xl mx-auto text-center">
           <Reveal>
             <p className="mono-label mb-8">Waitlist</p>
@@ -394,7 +401,9 @@ export default async function Home() {
           </Reveal>
 
           <Reveal delay={140} className="mt-14">
-            <WaitlistForm initialCount={count} />
+            <div className="gradient-border rounded-2xl bg-ink/40 backdrop-blur-sm p-8 md:p-12">
+              <WaitlistForm initialCount={count} />
+            </div>
           </Reveal>
 
           <Reveal delay={200}>
