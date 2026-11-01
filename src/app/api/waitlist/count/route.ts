@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/db";
+import { getCount } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const db = getDb();
-  const result = db.prepare("SELECT COUNT(*) as count FROM waitlist").get() as { count: number };
-  return NextResponse.json({ count: result.count });
+  try {
+    const count = await getCount();
+    return NextResponse.json({ count });
+  } catch (err) {
+    console.error("waitlist count failed:", err);
+    return NextResponse.json({ count: 0 }, { status: 500 });
+  }
 }

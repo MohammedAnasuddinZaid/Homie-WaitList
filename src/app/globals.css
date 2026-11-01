@@ -1,20 +1,25 @@
 @import "tailwindcss";
 
-:root {
+@theme {
+  /* ---- Chelsea system: black canvas, one blue voice ---- */
   --color-void: #000000;
+  --color-ink: #06070a;
+  --color-ink-2: #0a0d13;
   --color-blue: #4490ff;
+  --color-blue-soft: rgba(68, 144, 255, 0.12);
   --color-slate: #1f2937;
+  --color-slate-soft: rgba(31, 41, 55, 0.55);
   --color-bone: #f4efe9;
-  --color-white: #ffffff;
   --color-ash: #e5e7eb;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --color-dim: rgba(244, 239, 233, 0.42);
+  --color-faint: rgba(244, 239, 233, 0.26);
+
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* ---------- base ---------- */
 
 html {
   scroll-behavior: smooth;
@@ -22,10 +27,11 @@ html {
 
 body {
   background: var(--color-void);
-  color: var(--color-white);
-  font-family: var(--font-sans);
+  color: var(--color-bone);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 ::selection {
@@ -33,88 +39,293 @@ body {
   color: var(--color-void);
 }
 
-/* Pill button */
+:focus-visible {
+  outline: 1px solid var(--color-blue);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+section {
+  scroll-margin-top: 72px;
+}
+
+/* ---------- cinematic surfaces ---------- */
+
+/* faint blueprint grid, masked to a spotlight */
+.blueprint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(900px 620px at 50% 30%, #000 10%, transparent 78%);
+  mask-image: radial-gradient(900px 620px at 50% 30%, #000 10%, transparent 78%);
+}
+
+/* film grain over everything */
+.grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 90;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* ---------- type ---------- */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.accent {
+  color: var(--color-blue);
+}
+
+/* ---------- pills ---------- */
+
 .pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
+  gap: 10px;
+  padding: 12px 26px;
   border-radius: 9999px;
   font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  transition: opacity 0.2s ease;
+  font-weight: 600;
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
   cursor: pointer;
-  border: none;
-  outline: none;
-}
-
-.pill:hover {
-  opacity: 0.85;
+  border: 1px solid transparent;
+  transition: opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease,
+    transform 0.25s ease;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .pill-solid {
   background: var(--color-blue);
-  color: var(--color-void);
+  color: #000;
+}
+
+.pill-solid:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
 
 .pill-outline {
   background: transparent;
   color: var(--color-blue);
-  border: 1px solid var(--color-blue);
+  border-color: rgba(68, 144, 255, 0.45);
 }
 
-/* Hairline divider */
+.pill-outline:hover {
+  border-color: var(--color-blue);
+  background: var(--color-blue-soft);
+  transform: translateY(-1px);
+}
+
+.pill-ghost {
+  background: transparent;
+  color: var(--color-bone);
+  border-color: rgba(244, 239, 233, 0.18);
+}
+
+.pill-ghost:hover {
+  border-color: rgba(244, 239, 233, 0.45);
+}
+
+/* ---------- hairline ---------- */
+
 .hairline {
   height: 1px;
-  background: var(--color-slate);
+  background: var(--color-slate-soft);
   border: none;
 }
 
-/* Focal dot */
-.focal-dot {
-  width: 12px;
-  height: 12px;
+/* ---------- focal dot ---------- */
+
+.focal {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--color-blue);
+  box-shadow: 0 0 18px rgba(68, 144, 255, 0.8);
   display: inline-block;
+  flex: none;
 }
 
-/* Animations */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.focal-pulse {
+  animation: pulse 2.4s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.1); }
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 18px rgba(68, 144, 255, 0.8);
+  }
+  50% {
+    opacity: 0.55;
+    box-shadow: 0 0 6px rgba(68, 144, 255, 0.3);
+  }
 }
 
-.animate-fade-up {
-  animation: fadeUp 0.8s ease-out forwards;
+/* ---------- reveal on scroll ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
-.animate-fade-in {
-  animation: fadeIn 1s ease-out forwards;
+.reveal.is-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.animate-pulse-dot {
-  animation: pulse 2s ease-in-out infinite;
+/* ---------- hero load-in ---------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Noise texture overlay */
-.noise-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 100;
-  opacity: 0.03;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+.rise {
+  opacity: 0;
+  animation: rise 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ---------- marquee ---------- */
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 36s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- caret / blink ---------- */
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.blink {
+  animation: blink 1.1s step-end infinite;
+}
+
+/* ---------- form ---------- */
+
+.field {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(244, 239, 233, 0.16);
+  border-radius: 0;
+  color: var(--color-bone);
+  font-size: 17px;
+  font-family: var(--font-body);
+  padding: 16px 2px;
+  transition: border-color 0.25s ease;
+}
+
+.field::placeholder {
+  color: rgba(244, 239, 233, 0.22);
+}
+
+.field:focus {
+  outline: none;
+  border-bottom-color: var(--color-blue);
+}
+
+.field.has-error {
+  border-bottom-color: rgba(255, 122, 122, 0.65);
+}
+
+/* ---------- scroll cue ---------- */
+
+@keyframes scrollcue {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+}
+
+.scroll-cue {
+  animation: scrollcue 2.2s ease-in-out infinite;
+}
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .rise {
+    opacity: 1;
+    animation: none;
+  }
+  .marquee-track,
+  .focal-pulse,
+  .blink,
+  .scroll-cue {
+    animation: none;
+  }
 }

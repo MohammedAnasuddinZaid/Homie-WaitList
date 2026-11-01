@@ -1,31 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/lib/db";
+import { addEntry, getCount } from "@/lib/db";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  let body: unknown;
   try {
-    const body = await request.json();
-    const { name, email } = body;
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  }
 
-    if (!email || !email.includes("@")) {
-      return NextResponse.json({ error: "Valid email is required." }, { status: 400 });
+  const { name, email } = (body ?? {}) as { name?: unknown; email?: unknown };
+  const cleanEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+  const cleanName = typeof name === "string" ? name.trim().slice(0, 120) : "";
+
+  if (!EMAIL_RE.test(cleanEmail)) {
+    return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+  }
+
+  try {
+    await addEntry(cleanName, cleanEmail);
+    const count = await getCount();
+    return NextResponse.json({
+      message: "You're in. Watch your inbox — Homie is on its way.",
+      count,
+    });
+  } catch (err) {
+    const code = (err as { code?: string; errno?: number }).code;
+    const errno = (err as { errno?: number }).errno;
+    // SQLite: SQLITE_CONSTRAINT_UNIQUE — MySQL: ER_DUP_ENTRY (1062)
+    if (code === "SQLITE_CONSTRAINT_UNIQUE" || errno === 1062) {
+      const count = await getCount().catch(() => 0);
+      return NextResponse.json(
+        { error: "You're already on the list — see you soon.", count },
+        { status: 409 }
+      );
     }
-
-    const db = getDb();
-    const stmt = db.prepare("INSERT INTO waitlist (name, email) VALUES (?, ?)");
-    stmt.run(name || null, email);
-
-    return NextResponse.json({ message: "You're on the list. We'll be in touch." });
-  } catch (err: any) {
-    if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
-      return NextResponse.json({ error: "This email is already on the waitlist." }, { status: 409 });
-    }
-    console.error(err);
-    return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
+    console.error("waitlist insert failed:", err);
+    return NextResponse.json({ error: "Something went wrong. Try again in a moment." }, { status: 500 });
   }
 }
 
 export async function GET() {
-  const db = getDb();
-  const rows = db.prepare("SELECT id, name, email, created_at FROM waitlist ORDER BY created_at DESC").all();
-  return NextResponse.json({ entries: rows });
+  try {
+    const count = await getCount();
+    return NextResponse.json({ count });
+  } catch (err) {
+    console.error("waitlist count failed:", err);
+    return NextResponse.json({ count: 0 }, { status: 500 });
+  }
 }

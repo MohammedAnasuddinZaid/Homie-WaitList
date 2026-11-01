@@ -1,318 +1,454 @@
-"use client";
+import Reveal from "@/components/Reveal";
+import WaitlistForm from "@/components/WaitlistForm";
+import LiveCount from "@/components/LiveCount";
+import { getCount } from "@/lib/db";
 
-import { useState, useRef, useEffect } from "react";
+export const dynamic = "force-dynamic";
 
-export default function Home() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
-  const [count, setCount] = useState<number | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+const FEATURES = [
+  {
+    n: "01",
+    title: "Screen-aware",
+    body: "It captures the window you were just in — never your whole desktop. Held in memory, never written to disk.",
+  },
+  {
+    n: "02",
+    title: "Local-first",
+    body: "Runs on your own machine with Ollama. No account. No upload. No cloud tax.",
+  },
+  {
+    n: "03",
+    title: "Live observation",
+    body: "Samples your screen while you work and enriches context locally — so answers know what you're looking at.",
+  },
+  {
+    n: "04",
+    title: "Screen memory",
+    body: "Opt-in. Homie recalls what you've seen, with retention windows and exclusions you control. Stored on your device.",
+  },
+  {
+    n: "05",
+    title: "Hands-free voice",
+    body: "Speak the question. It listens, reasons, and answers. Hands stay on the keyboard.",
+  },
+  {
+    n: "06",
+    title: "Bring your own provider",
+    body: "Ollama, OpenAI-compatible, Anthropic, or OpenCode. Your keys, your choice — switch anytime.",
+  },
+];
 
-  useEffect(() => {
-    // Fetch waitlist count
-    fetch("/api/waitlist/count")
-      .then((r) => r.json())
-      .then((d) => setCount(d.count))
-      .catch(() => {});
-  }, []);
+const STEPS = [
+  { k: "Summon", sub: "Ctrl + Shift + Space", d: "The overlay appears above any window." },
+  { k: "Capture", sub: "Active window · in memory", d: "A frame of what you were just doing — held in RAM, never saved." },
+  { k: "Reason", sub: "Local model · loopback", d: "Ollama reads the frame and the question. Nothing leaves the machine." },
+  { k: "Answer", sub: "In place · instantly", d: "The response renders right in the overlay." },
+];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    setStatus("loading");
-    try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setStatus("success");
-        setMessage(data.message || "You're on the list.");
-        setCount((c) => (c !== null ? c + 1 : null));
-      } else {
-        setStatus("error");
-        setMessage(data.error || "Something went wrong.");
-      }
-    } catch {
-      setStatus("error");
-      setMessage("Network error. Try again.");
-    }
-  };
+const PROVIDERS = ["OLLAMA", "OPENAI-COMPATIBLE", "ANTHROPIC", "OPENCODE"];
+
+const MARQUEE = [
+  "SCREEN-AWARE",
+  "LOCAL-FIRST",
+  "OPEN SOURCE",
+  "NO ACCOUNT",
+  "NO UPLOAD",
+  "ONE SHORTCUT AWAY",
+];
+
+export default async function Home() {
+  let count = 0;
+  try {
+    count = await getCount();
+  } catch {
+    count = 0;
+  }
 
   return (
-    <main className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[#4490ff] opacity-[0.06] blur-[120px]" />
-        <div className="absolute right-1/4 bottom-1/4 w-[400px] h-[400px] rounded-full bg-[#4490ff] opacity-[0.03] blur-[80px]" />
-      </div>
-
-      {/* Nav */}
-      <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-6">
-        <div className="flex items-center gap-3">
-          <span className="focal-dot animate-pulse-dot" />
-          <span className="text-sm font-medium tracking-widest uppercase text-white/90">
-            HOMIE
-          </span>
-        </div>
-        <div className="flex items-center gap-8 text-sm text-white/60">
-          <a href="#features" className="hover:text-[#4490ff] transition-colors">Features</a>
-          <a href="#waitlist" className="hover:text-[#4490ff] transition-colors">Waitlist</a>
-          <a
-            href="https://github.com/sarthakshipsai/homie"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-[#4490ff] transition-colors"
-          >
-            GitHub
-          </a>
-        </div>
-      </nav>
-
-      <hr className="hairline mx-6 md:mx-12" />
-
-      {/* Hero */}
-      <section className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] px-6 text-center">
-        <div className="animate-fade-up" style={{ animationDelay: "0.1s", opacity: 0 }}>
-          <span className="focal-dot mb-8 inline-block" />
-        </div>
-
-        <h1
-          className="animate-fade-up text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6"
-          style={{ animationDelay: "0.2s", opacity: 0 }}
-        >
-          Your screen.
-          <br />
-          <span className="text-[#4490ff]">Your AI.</span>
-        </h1>
-
-        <p
-          className="animate-fade-up text-lg md:text-xl text-white/50 max-w-2xl leading-relaxed mb-10"
-          style={{ animationDelay: "0.4s", opacity: 0 }}
-        >
-          Homie is a free, local-first desktop copilot. One shortcut away.
-          <br className="hidden md:block" />
-          It sees your screen, reasons locally, and answers in place.
-        </p>
-
-        <div
-          className="animate-fade-up flex flex-col sm:flex-row items-center gap-4"
-          style={{ animationDelay: "0.6s", opacity: 0 }}
-        >
-          <a href="#waitlist" className="pill pill-solid">
-            Join the waitlist
-          </a>
-          <a
-            href="https://github.com/sarthakshipsai/homie"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="pill pill-outline"
-          >
-            View on GitHub
-          </a>
-        </div>
-
-        {count !== null && (
-          <p
-            className="animate-fade-up text-sm text-white/30 mt-8 font-mono tracking-wider"
-            style={{ animationDelay: "0.8s", opacity: 0 }}
-          >
-            {count.toLocaleString()} people already on the list
-          </p>
-        )}
-      </section>
-
-      {/* Features */}
-      <section id="features" className="relative z-10 px-6 md:px-12 py-24 md:py-32">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-16">
-            <span className="focal-dot mb-4 inline-block" />
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              More than a chat window
-            </h2>
-            <p className="text-white/40 text-lg max-w-xl">
-              Built for the way you actually work.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                title: "Screen-aware",
-                desc: "Captures the window you were just in. Not your whole desktop. In memory, never a file.",
-                accent: "#4490ff",
-              },
-              {
-                title: "Local-first",
-                desc: "Runs on your machine via Ollama. No account. No upload. Nothing leaves unless you choose a cloud provider.",
-                accent: "#4490ff",
-              },
-              {
-                title: "Live observation",
-                desc: "Watches your screen while you work. Samples every few seconds. Enriches locally.",
-                accent: "#4490ff",
-              },
-              {
-                title: "Screen memory",
-                desc: "Opt-in. Homie recalls what you saw. Stored locally, with retention and exclusions you control.",
-                accent: "#4490ff",
-              },
-              {
-                title: "Voice input",
-                desc: "Speak your question. Homie listens, then answers. Hands-free.",
-                accent: "#4490ff",
-              },
-              {
-                title: "Connect your provider",
-                desc: "Claude, OpenAI, or any compatible API. Bring your own keys. Switch anytime.",
-                accent: "#4490ff",
-              },
-            ].map((f, i) => (
-              <div
-                key={f.title}
-                className="group p-8 border border-[#1f2937] rounded-none hover:border-[#4490ff]/40 transition-colors duration-300"
-                style={{ animationDelay: `${0.1 * i}s` }}
-              >
-                <div className="w-2 h-2 rounded-full bg-[#4490ff] mb-6 shadow-[0_0_12px_#4490ff]" />
-                <h3 className="text-xl font-semibold mb-3 tracking-tight">{f.title}</h3>
-                <p className="text-white/40 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <hr className="hairline mx-6 md:mx-12" />
-
-      {/* How it works */}
-      <section className="relative z-10 px-6 md:px-12 py-24 md:py-32">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-16">
-            <span className="focal-dot mb-4 inline-block" />
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              Under the glass
-            </h2>
-            <p className="text-white/40 text-lg max-w-xl">
-              How Homie turns a screen into an answer.
-            </p>
-          </div>
-
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-0">
-            {[
-              { label: "Overlay", sub: "Electron · always on top" },
-              { label: "Screenshot", sub: "in memory · active window" },
-              { label: "Ollama", sub: "loopback · 127.0.0.1" },
-              { label: "qwen3-vl", sub: "vision model · local" },
-            ].map((node, i) => (
-              <div key={node.label} className="flex items-center">
-                <div className="px-6 py-4 text-center">
-                  <div className="w-2 h-2 rounded-full bg-[#4490ff] mx-auto mb-3 shadow-[0_0_12px_#4490ff]" />
-                  <div className="text-lg font-semibold tracking-tight">{node.label}</div>
-                  <div className="text-xs text-white/40 mt-1 font-mono tracking-wider">{node.sub}</div>
-                </div>
-                {i < 3 && (
-                  <div className="hidden md:block w-12 h-px bg-[#4490ff]/40" />
-                )}
-              </div>
-            ))}
-          </div>
-
-          <p className="text-white/60 text-lg mt-12 max-w-2xl leading-relaxed">
-            No account. No upload. Free and open source. Nothing leaves your machine
-            unless you choose a cloud provider.
-          </p>
-        </div>
-      </section>
-
-      <hr className="hairline mx-6 md:mx-12" />
-
-      {/* Waitlist */}
-      <section id="waitlist" className="relative z-10 px-6 md:px-12 py-24 md:py-32">
-        <div className="max-w-2xl mx-auto text-center">
-          <span className="focal-dot mb-6 inline-block" />
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Be the first to try Homie
-          </h2>
-          <p className="text-white/40 text-lg mb-10">
-            Join the waitlist. We&apos;ll let you know when it&apos;s ready.
-          </p>
-
-          {status === "success" ? (
-            <div className="py-8">
-              <div className="w-12 h-12 rounded-full bg-[#4490ff]/20 border border-[#4490ff]/40 flex items-center justify-center mx-auto mb-4">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4490ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </div>
-              <p className="text-xl font-medium text-[#4490ff]">{message}</p>
-              {count !== null && (
-                <p className="text-sm text-white/30 mt-4 font-mono tracking-wider">
-                  {count.toLocaleString()} people on the list
-                </p>
-              )}
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md mx-auto">
-              <input
-                type="text"
-                placeholder="Your name (optional)"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-5 py-3 bg-transparent border border-[#1f2937] rounded-full text-white placeholder-white/30 focus:outline-none focus:border-[#4490ff] transition-colors text-sm"
-              />
-              <input
-                ref={inputRef}
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-5 py-3 bg-transparent border border-[#1f2937] rounded-full text-white placeholder-white/30 focus:outline-none focus:border-[#4490ff] transition-colors text-sm"
-              />
-              <button
-                type="submit"
-                disabled={status === "loading"}
-                className="pill pill-solid w-full justify-center disabled:opacity-50"
-              >
-                {status === "loading" ? "Joining..." : "Join waitlist"}
-              </button>
-              {status === "error" && (
-                <p className="text-sm text-red-400">{message}</p>
-              )}
-            </form>
-          )}
-
-          <p className="text-xs text-white/20 mt-8">
-            Free and open source. No spam. Unsubscribe anytime.
-          </p>
-        </div>
-      </section>
-
-      <hr className="hairline mx-6 md:mx-12" />
-
-      {/* Footer */}
-      <footer className="relative z-10 px-6 md:px-12 py-12">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <span className="focal-dot" />
-            <span className="text-sm font-medium tracking-widest uppercase text-white/60">
-              HOMIE
+    <main className="relative bg-void text-bone">
+      {/* ============ NAV ============ */}
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-slate-soft bg-void/70 backdrop-blur-xl">
+        <nav className="flex items-center justify-between px-6 md:px-12 h-16">
+          <a href="#top" className="flex items-center gap-3 no-underline">
+            <span className="focal focal-pulse" />
+            <span className="font-display text-sm font-semibold tracking-[0.3em] uppercase text-bone">
+              Homie
             </span>
-          </div>
-          <div className="flex items-center gap-6 text-sm text-white/30">
+          </a>
+          <div className="flex items-center gap-7 text-[13px] text-dim">
+            <a href="#features" className="hidden sm:inline hover:text-blue transition-colors">
+              Features
+            </a>
+            <a href="#film" className="hidden sm:inline hover:text-blue transition-colors">
+              Film
+            </a>
+            <a href="#how" className="hidden sm:inline hover:text-blue transition-colors">
+              How it works
+            </a>
             <a
               href="https://github.com/sarthakshipsai/homie"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[#4490ff] transition-colors"
+              className="hover:text-blue transition-colors"
             >
               GitHub
             </a>
-            <span>Created by Anas & Sarthak</span>
+            <a href="#waitlist" className="pill pill-outline !py-2 !px-5">
+              Waitlist
+            </a>
+          </div>
+        </nav>
+      </header>
+
+      {/* ============ HERO ============ */}
+      <section id="top" className="relative h-[100svh] min-h-[640px] overflow-hidden">
+        {/* full-bleed film */}
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src="/hero-loop.mp4"
+          poster="/poster.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+        />
+        {/* scrims */}
+        <div className="absolute inset-0 bg-gradient-to-b from-void via-void/20 to-void pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-void/85 via-void/35 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-void/15 pointer-events-none" />
+
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
+          <p className="rise mono-label mb-8 flex items-center gap-3" style={{ animationDelay: "0.1s" }}>
+            <span className="focal" style={{ width: 6, height: 6 }} />
+            Free · Open source · Local-first
+          </p>
+
+          <h1
+            className="rise display text-[13vw] sm:text-7xl md:text-8xl lg:text-[104px] text-bone"
+            style={{ animationDelay: "0.25s" }}
+          >
+            Your screen.
+            <br />
+            <span className="accent">Your AI.</span>
+          </h1>
+
+          <p
+            className="rise max-w-xl text-bone/60 text-base md:text-lg leading-relaxed mt-8"
+            style={{ animationDelay: "0.45s" }}
+          >
+            A free, open-source desktop copilot — one shortcut away.
+            <br className="hidden sm:block" />
+            It captures the window you were just in, reasons locally,
+            <br className="hidden sm:block" />
+            and answers in place.
+          </p>
+
+          <div
+            className="rise flex flex-col sm:flex-row items-center gap-4 mt-12"
+            style={{ animationDelay: "0.6s" }}
+          >
+            <a href="#waitlist" className="pill pill-solid">
+              Join the waitlist
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </a>
+            <a href="#film" className="pill pill-outline">
+              Watch the film
+            </a>
+          </div>
+
+          <p
+            className="rise font-mono text-xs tracking-[0.22em] uppercase text-faint mt-12"
+            style={{ animationDelay: "0.75s" }}
+          >
+            <LiveCount initial={count} /> already on the list
+          </p>
+        </div>
+
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+          <span className="scroll-cue block mono-label !text-faint">Scroll</span>
+        </div>
+      </section>
+
+      {/* ============ MARQUEE ============ */}
+      <div className="marquee border-y border-slate-soft py-4 overflow-hidden select-none">
+        <div className="marquee-track">
+          {[0, 1].map((copy) => (
+            <div key={copy} className="flex items-center" aria-hidden={copy === 1}>
+              {MARQUEE.map((item) => (
+                <span key={item} className="flex items-center gap-8 px-4">
+                  <span className="font-mono text-[11px] tracking-[0.3em] text-dim whitespace-nowrap">
+                    {item}
+                  </span>
+                  <span className="focal" style={{ width: 5, height: 5 }} />
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ============ STATEMENT ============ */}
+      <section className="relative py-32 md:py-44 px-6">
+        <div className="blueprint" aria-hidden="true" />
+        <div className="relative max-w-5xl mx-auto">
+          <Reveal>
+            <p className="mono-label mb-12">The idea</p>
+          </Reveal>
+          <Reveal delay={80}>
+            <h2 className="display text-4xl md:text-6xl lg:text-7xl text-bone">
+              It sees what you see<span className="accent">.</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={160}>
+            <h2 className="display text-4xl md:text-6xl lg:text-7xl text-bone mt-4">
+              It reasons where you work<span className="accent">.</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={240}>
+            <h2 className="display text-4xl md:text-6xl lg:text-7xl text-bone mt-4">
+              It answers in place<span className="accent">.</span>
+            </h2>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ FEATURES ============ */}
+      <section id="features" className="relative px-6 md:px-12 py-24 md:py-36">
+        <div className="max-w-6xl mx-auto">
+          <Reveal className="flex items-end justify-between mb-16 md:mb-24">
+            <div>
+              <p className="mono-label mb-6">Capabilities</p>
+              <h2 className="display text-4xl md:text-6xl text-bone">
+                More than a chat window<span className="accent">.</span>
+              </h2>
+            </div>
+            <p className="hidden md:block font-mono text-xs tracking-[0.25em] text-faint uppercase">
+              06
+            </p>
+          </Reveal>
+
+          <div>
+            {FEATURES.map((f, i) => (
+              <Reveal key={f.n} delay={i * 60}>
+                <a
+                  href="#waitlist"
+                  className="group flex flex-col md:flex-row md:items-baseline gap-3 md:gap-10 py-10 md:py-12 border-t border-slate-soft last:border-b no-underline"
+                >
+                  <span className="font-mono text-xs tracking-[0.25em] text-faint group-hover:text-blue transition-colors w-14 flex-none">
+                    {f.n}
+                  </span>
+                  <div className="md:w-72 flex-none">
+                    <h3 className="font-display text-2xl md:text-[28px] font-semibold tracking-tight text-bone group-hover:text-blue transition-colors">
+                      {f.title}
+                    </h3>
+                  </div>
+                  <p className="text-dim leading-relaxed max-w-xl group-hover:text-bone/70 transition-colors">
+                    {f.body}
+                  </p>
+                </a>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FILM ============ */}
+      <section id="film" className="relative px-0 py-24 md:py-36">
+        <div className="max-w-6xl mx-auto px-6 md:px-12 mb-14">
+          <Reveal>
+            <p className="mono-label mb-6">The film</p>
+            <h2 className="display text-4xl md:text-6xl text-bone">
+              Ninety seconds of Homie<span className="accent">.</span>
+            </h2>
+          </Reveal>
+        </div>
+        <Reveal>
+          <div className="relative bg-ink aspect-video w-full">
+            <video
+              className="absolute inset-0 w-full h-full"
+              src="/homie-film.mp4"
+              poster="/poster.jpg"
+              controls
+              preload="none"
+              playsInline
+            />
+          </div>
+        </Reveal>
+        <div className="max-w-6xl mx-auto px-6 md:px-12 mt-6 flex items-center justify-between">
+          <p className="font-mono text-[11px] tracking-[0.25em] text-faint uppercase">
+            Homie — launch film · 2026
+          </p>
+          <p className="font-mono text-[11px] tracking-[0.25em] text-faint uppercase hidden sm:block">
+            1080p · 90s
+          </p>
+        </div>
+      </section>
+
+      {/* ============ HOW IT WORKS ============ */}
+      <section id="how" className="relative px-6 md:px-12 py-24 md:py-36">
+        <div className="blueprint" aria-hidden="true" />
+        <div className="relative max-w-6xl mx-auto">
+          <Reveal className="mb-20">
+            <p className="mono-label mb-6">Under the glass</p>
+            <h2 className="display text-4xl md:text-6xl text-bone">
+              How a screen becomes an answer<span className="accent">.</span>
+            </h2>
+          </Reveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-y-14 md:gap-y-0 md:gap-x-8">
+            {STEPS.map((s, i) => (
+              <Reveal key={s.k} delay={i * 90} className="relative">
+                {i < STEPS.length - 1 && (
+                  <div
+                    className="hidden md:block absolute top-[22px] left-[calc(50%+26px)] w-[calc(100%-52px)] h-px bg-blue/25"
+                    aria-hidden="true"
+                  />
+                )}
+                <div className="flex items-center gap-4 mb-6">
+                  <span className="focal relative z-10" />
+                  <span className="font-mono text-xs text-faint tracking-[0.25em]">
+                    {`0${i + 1}`}
+                  </span>
+                </div>
+                <h3 className="font-display text-2xl font-semibold tracking-tight text-bone mb-2">
+                  {s.k}
+                </h3>
+                <p className="font-mono text-[11px] tracking-[0.18em] uppercase accent mb-4">
+                  {s.sub}
+                </p>
+                <p className="text-dim text-[15px] leading-relaxed">{s.d}</p>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ PROVIDERS ============ */}
+      <section className="relative px-6 md:px-12 py-24 md:py-32 border-y border-slate-soft">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center gap-12 md:gap-16">
+          <Reveal className="md:w-1/2">
+            <p className="mono-label mb-6">Providers</p>
+            <h2 className="display text-3xl md:text-5xl text-bone">
+              Bring your own brain<span className="accent">.</span>
+            </h2>
+            <p className="text-dim leading-relaxed mt-6 max-w-md">
+              Local by default. Cloud when you say so — Claude, OpenAI, or any
+              compatible API. Your keys, your machine, your call.
+            </p>
+          </Reveal>
+          <Reveal delay={120} className="md:w-1/2">
+            <div className="flex flex-col gap-5">
+              {PROVIDERS.map((p) => (
+                <div
+                  key={p}
+                  className="flex items-center justify-between py-4 border-b border-slate-soft last:border-0"
+                >
+                  <span className="font-mono text-sm tracking-[0.2em] text-bone/80">{p}</span>
+                  <span className="focal" style={{ width: 6, height: 6 }} />
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ TRUST ============ */}
+      <section className="relative px-6 md:px-12 py-28 md:py-40">
+        <div className="max-w-4xl mx-auto text-center">
+          <Reveal>
+            <h2 className="display text-3xl md:text-5xl lg:text-6xl text-bone leading-[1.06]">
+              Nothing leaves your machine
+              <br />
+              unless you choose a cloud provider<span className="accent">.</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={120}>
+            <p className="font-mono text-xs tracking-[0.25em] uppercase text-faint mt-10">
+              Free &amp; open source · No account · No telemetry · No hidden cloud
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ WAITLIST ============ */}
+      <section
+        id="waitlist"
+        className="relative px-6 md:px-12 py-28 md:py-40 border-t border-slate-soft overflow-hidden"
+      >
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-blue opacity-[0.05] blur-[140px] pointer-events-none"
+          aria-hidden="true"
+        />
+        <div className="relative max-w-2xl mx-auto text-center">
+          <Reveal>
+            <p className="mono-label mb-8">Waitlist</p>
+            <h2 className="display text-5xl md:text-7xl text-bone">
+              Be first in line<span className="accent">.</span>
+            </h2>
+            <p className="text-bone/55 text-lg leading-relaxed mt-8 max-w-md mx-auto">
+              Homie is on its way. Drop your email and we&apos;ll tell you the moment
+              it&apos;s ready.
+            </p>
+          </Reveal>
+
+          <Reveal delay={140} className="mt-14">
+            <WaitlistForm initialCount={count} />
+          </Reveal>
+
+          <Reveal delay={200}>
+            <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-faint mt-16">
+              Free forever · No spam · Unsubscribe anytime
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ FOOTER ============ */}
+      <footer className="relative px-6 md:px-12 pt-16 pb-10 border-t border-slate-soft">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-12">
+            <div className="flex items-center gap-3">
+              <span className="focal" />
+              <span className="font-display text-sm font-semibold tracking-[0.3em] uppercase text-bone">
+                Homie
+              </span>
+            </div>
+            <div className="flex flex-col gap-4 text-[13px] text-dim">
+              <a href="#features" className="hover:text-blue transition-colors w-fit">
+                Features
+              </a>
+              <a href="#film" className="hover:text-blue transition-colors w-fit">
+                Film
+              </a>
+              <a href="#waitlist" className="hover:text-blue transition-colors w-fit">
+                Waitlist
+              </a>
+              <a
+                href="https://github.com/sarthakshipsai/homie"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue transition-colors w-fit"
+              >
+                GitHub
+              </a>
+            </div>
+            <p className="font-mono text-xs tracking-[0.2em] uppercase text-faint">
+              Created by
+              <br />
+              <span className="text-bone/70 mt-2 block">Anas &amp; Sarthak</span>
+            </p>
+          </div>
+          <div className="hairline my-10" />
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-faint">
+              © 2026 Homie
+            </p>
+            <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-faint">
+              Free &amp; open source · MIT
+            </p>
           </div>
         </div>
       </footer>
