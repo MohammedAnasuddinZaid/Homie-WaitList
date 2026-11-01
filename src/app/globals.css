@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  --color-void: #000000;
+  --color-blue: #4490ff;
+  --color-slate: #1f2937;
+  --color-bone: #f4efe9;
+  --color-white: #ffffff;
+  --color-ash: #e5e7eb;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-void);
+  color: var(--color-white);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-blue);
+  color: var(--color-void);
+}
+
+/* Pill button */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.pill:hover {
+  opacity: 0.85;
+}
+
+.pill-solid {
+  background: var(--color-blue);
+  color: var(--color-void);
+}
+
+.pill-outline {
+  background: transparent;
+  color: var(--color-blue);
+  border: 1px solid var(--color-blue);
+}
+
+/* Hairline divider */
+.hairline {
+  height: 1px;
+  background: var(--color-slate);
+  border: none;
+}
+
+/* Focal dot */
+.focal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-blue);
+  display: inline-block;
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.animate-pulse-dot {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Noise texture overlay */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
