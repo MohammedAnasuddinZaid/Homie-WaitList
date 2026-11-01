@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BASE_COUNT } from "@/lib/constants";
 
 type Status = "idle" | "loading" | "success" | "error" | "duplicate";
 
@@ -78,7 +79,7 @@ export default function WaitlistForm({ initialCount }: { initialCount: number })
           </p>
           {count !== null && (
             <p className="font-mono text-xs accent mt-3 tracking-widest">
-              {count.toLocaleString()} on the list
+              {(BASE_COUNT + count).toLocaleString()} on the list
             </p>
           )}
           <button onClick={reset} className="pill pill-ghost mt-10">
@@ -94,7 +95,7 @@ export default function WaitlistForm({ initialCount }: { initialCount: number })
           <p className="text-dim leading-relaxed">{message}</p>
           {count !== null && (
             <p className="font-mono text-xs accent mt-5 tracking-widest">
-              {count.toLocaleString()} on the list
+              {(BASE_COUNT + count).toLocaleString()} on the list
             </p>
           )}
         </div>

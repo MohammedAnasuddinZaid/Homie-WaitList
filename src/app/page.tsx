@@ -1,6 +1,10 @@
 import Reveal from "@/components/Reveal";
 import WaitlistForm from "@/components/WaitlistForm";
 import LiveCount from "@/components/LiveCount";
+import FilmPlayer from "@/components/FilmPlayer";
+import ScrollProgress from "@/components/ScrollProgress";
+import Particles from "@/components/Particles";
+import Parallax from "@/components/Parallax";
 import { getCount } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -66,6 +70,7 @@ export default async function Home() {
 
   return (
     <main className="relative bg-void text-bone">
+      <ScrollProgress />
       {/* ============ NAV ============ */}
       <header className="fixed top-0 inset-x-0 z-50 border-b border-slate-soft bg-void/70 backdrop-blur-xl">
         <nav className="flex items-center justify-between px-6 md:px-12 h-16">
@@ -113,12 +118,14 @@ export default async function Home() {
           playsInline
           aria-hidden="true"
         />
+        <Particles />
         {/* scrims */}
         <div className="absolute inset-0 bg-gradient-to-b from-void via-void/20 to-void pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-r from-void/85 via-void/35 to-transparent pointer-events-none" />
         <div className="absolute inset-0 bg-void/15 pointer-events-none" />
 
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
+          <Parallax speed={0.08}>
           <p className="rise mono-label mb-8 flex items-center gap-3" style={{ animationDelay: "0.1s" }}>
             <span className="focal" style={{ width: 6, height: 6 }} />
             Free · Open source · Local-first
@@ -165,6 +172,7 @@ export default async function Home() {
           >
             <LiveCount initial={count} /> already on the list
           </p>
+          </Parallax>
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
@@ -266,16 +274,7 @@ export default async function Home() {
           </Reveal>
         </div>
         <Reveal>
-          <div className="relative bg-ink aspect-video w-full">
-            <video
-              className="absolute inset-0 w-full h-full"
-              src="/homie-film.mp4"
-              poster="/poster.jpg"
-              controls
-              preload="none"
-              playsInline
-            />
-          </div>
+          <FilmPlayer />
         </Reveal>
         <div className="max-w-6xl mx-auto px-6 md:px-12 mt-6 flex items-center justify-between">
           <p className="font-mono text-[11px] tracking-[0.25em] text-faint uppercase">
