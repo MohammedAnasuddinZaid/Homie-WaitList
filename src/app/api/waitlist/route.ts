@@ -48,7 +48,10 @@ export async function POST(request: NextRequest) {
     const msg = (err as { message?: string }).message || "";
     if (msg.includes("No database configured")) {
       return NextResponse.json(
-        { error: "Database not configured. Please set POSTGRES_URL or MYSQL_* env vars." },
+        {
+          error:
+            "Database not configured. Add POSTGRES_URL to Vercel env vars (free Neon DB, ~2 min). See README for steps.",
+        },
         { status: 503 }
       );
     }
