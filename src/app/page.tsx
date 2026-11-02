@@ -7,6 +7,7 @@ import Particles from "@/components/Particles";
 import Parallax from "@/components/Parallax";
 import LetterReveal from "@/components/LetterReveal";
 import FeatureRow from "@/components/FeatureRow";
+import SiteFooter from "@/components/SiteFooter";
 import { getCount } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -404,51 +405,7 @@ export default async function Home() {
       </section>
 
       {/* ============ FOOTER ============ */}
-      <footer className="relative px-6 md:px-12 pt-16 pb-10 border-t border-slate-soft">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-12">
-            <div className="flex items-center gap-3">
-              <span className="focal" />
-              <span className="font-display text-sm font-semibold tracking-[0.3em] uppercase text-bone">
-                Homie
-              </span>
-            </div>
-            <div className="flex flex-col gap-4 text-[13px] text-dim">
-              <a href="#features" className="hover:text-blue transition-colors w-fit">
-                Features
-              </a>
-              <a href="#film" className="hover:text-blue transition-colors w-fit">
-                Film
-              </a>
-              <a href="#waitlist" className="hover:text-blue transition-colors w-fit">
-                Waitlist
-              </a>
-              <a
-                href="https://github.com/sarthakshipsai/homie"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue transition-colors w-fit"
-              >
-                GitHub
-              </a>
-            </div>
-            <p className="font-mono text-xs tracking-[0.2em] uppercase text-faint">
-              Created by
-              <br />
-              <span className="text-bone/70 mt-2 block">Anas &amp; Sarthak</span>
-            </p>
-          </div>
-          <div className="hairline my-10" />
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-faint">
-              © 2026 Homie
-            </p>
-            <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-faint">
-              Free &amp; open source · MIT
-            </p>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }
