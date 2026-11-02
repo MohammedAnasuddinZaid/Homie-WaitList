@@ -75,7 +75,7 @@ export default async function Home() {
     <main className="relative bg-void text-bone">
       <ScrollProgress />
       {/* ============ NAV ============ */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-slate-soft bg-void/70 backdrop-blur-xl">
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-slate-soft bg-void/80 backdrop-blur-md">
         <nav className="flex items-center justify-between px-6 md:px-12 h-16">
           <a href="#top" className="flex items-center gap-3 no-underline">
             <span className="focal focal-pulse" />

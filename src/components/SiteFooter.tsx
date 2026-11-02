@@ -48,14 +48,6 @@ export default function SiteFooter() {
               <button onClick={() => setOpen("sarthak")} className="text-left hover:text-blue transition-colors w-fit animated-underline">
                 About Sarthak
               </button>
-              <a
-                href="https://github.com/MohammedAnasuddinZaid/Homie-WaitList"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue transition-colors w-fit animated-underline"
-              >
-                Source code
-              </a>
             </div>
 
             <div className="flex flex-col gap-4 text-[13px] text-dim">

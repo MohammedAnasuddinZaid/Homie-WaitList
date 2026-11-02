@@ -24,7 +24,7 @@ export default function Particles() {
     resize();
     window.addEventListener("resize", resize);
 
-    const N = 42;
+    const N = 30;
     const pts = Array.from({ length: N }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
