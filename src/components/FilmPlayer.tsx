@@ -27,11 +27,6 @@ export default function FilmPlayer() {
     setEnded(true);
   };
 
-  const toggle = () => {
-    if (playing) pause();
-    else play();
-  };
-
   return (
     <div className="relative bg-ink aspect-video w-full overflow-hidden group glow-border">
       <video
@@ -39,10 +34,12 @@ export default function FilmPlayer() {
         className="absolute inset-0 w-full h-full"
         src="/homie-film.mp4"
         poster="/poster.jpg"
+        controls
         preload="metadata"
         playsInline
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
         onEnded={handleEnded}
-        onClick={toggle}
       />
       <div className="scan-line" aria-hidden="true" />
 
@@ -50,7 +47,7 @@ export default function FilmPlayer() {
       {!playing && (
         <button
           type="button"
-          onClick={play}
+          onClick={(e) => { e.stopPropagation(); play(); }}
           aria-label="Play the Homie film with sound"
           className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 bg-void/40 backdrop-blur-[2px] transition-opacity duration-300 hover:bg-void/25"
         >
