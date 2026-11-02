@@ -1,14 +1,13 @@
 /**
- * Waitlist storage.
+ * Waitlist storage — multi-backend, auto-selected by environment.
  *
- * Local development  -> SQLite (better-sqlite3), zero setup, file at ./data/waitlist.db
- * Production (Vercel)-> MySQL. Set the MYSQL_* env vars below and the pool is used instead.
+ *   1. Postgres (cloud, 24/7)  -> set POSTGRES_URL or DATABASE_URL
+ *      Free always-on options: Neon (neon.tech), Supabase, Vercel Postgres.
+ *   2. MySQL (your laptop DB)   -> set MYSQL_HOST / MYSQL_USER / MYSQL_PASSWORD / MYSQL_DATABASE
+ *   3. SQLite (local dev)       -> default, file at ./data/waitlist.db
  *
- * Vercel note: the filesystem is ephemeral there, so a real DB (MySQL) is required
- * for durable storage. Create the schema with schema.sql on your MySQL server,
- * then set:
- *   MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
- * and optionally MYSQL_PORT.
+ * For a public 24/7 site use Postgres (Neon free tier takes ~2 min to set up).
+ * A laptop MySQL is only reachable while the laptop is on and port-forwarded.
  */
 
 type DbClient = {
@@ -17,14 +16,20 @@ type DbClient = {
   count: (sql: string) => Promise<number>;
 };
 
+const USE_POSTGRES = Boolean(process.env.POSTGRES_URL || process.env.DATABASE_URL);
 const USE_MYSQL = Boolean(
-  process.env.MYSQL_HOST || process.env.MYSQL_DATABASE || process.env.MYSQL_URL
+  !USE_POSTGRES && (process.env.MYSQL_HOST || process.env.MYSQL_DATABASE || process.env.MYSQL_URL)
 );
 
-async function createTable(client: DbClient): Promise<void> {
+async function createTable(client: DbClient, isPostgres: boolean, isMysql: boolean): Promise<void> {
+  const idCol = isPostgres
+    ? "BIGSERIAL PRIMARY KEY"
+    : isMysql
+    ? "BIGINT AUTO_INCREMENT PRIMARY KEY"
+    : "INTEGER PRIMARY KEY AUTOINCREMENT";
   await client.run(
     `CREATE TABLE IF NOT EXISTS waitlist (
-      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+      id ${idCol},
       name VARCHAR(255),
       email VARCHAR(255) UNIQUE NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -35,7 +40,10 @@ async function createTable(client: DbClient): Promise<void> {
 
 let sqliteClient: DbClient | null = null;
 let mysqlClient: DbClient | null = null;
+let pgClient: DbClient | null = null;
 let tableReady = false;
+let isPg = false;
+let isMy = false;
 
 async function getSqliteClient(): Promise<DbClient> {
   if (sqliteClient) return sqliteClient;
@@ -116,31 +124,78 @@ async function getMysqlClient(): Promise<DbClient> {
   return mysqlClient;
 }
 
+async function getPgClient(): Promise<DbClient> {
+  if (pgClient) return pgClient;
+  const pgModule = await import("pg");
+  const { Pool } = pgModule;
+  const url = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  const pool = new Pool({ connectionString: url, ssl: { rejectUnauthorized: false } });
+
+  pgClient = {
+    async run(sql, params) {
+      const res = await pool.query(sql, params);
+      return { lastId: Number(res.rows?.[0]?.id || 0) };
+    },
+    async all(sql) {
+      const res = await pool.query(sql);
+      return res.rows as unknown[];
+    },
+    async count(sql) {
+      const res = await pool.query(sql);
+      return Number(res.rows?.[0]?.count || 0);
+    },
+  };
+  return pgClient;
+}
+
 async function getClient(): Promise<DbClient> {
-  return USE_MYSQL ? getMysqlClient() : getSqliteClient();
+  if (USE_POSTGRES) {
+    isPg = true;
+    return getPgClient();
+  }
+  if (USE_MYSQL) {
+    isMy = true;
+    return getMysqlClient();
+  }
+  if (process.env.VERCEL) {
+    throw new Error(
+      "No database configured. Set POSTGRES_URL (Neon/Supabase free tier) or MYSQL_* env vars in Vercel."
+    );
+  }
+  return getSqliteClient();
 }
 
 export async function ensureTable(): Promise<void> {
   if (tableReady) return;
-  await createTable(await getClient());
+  const client = await getClient();
+  await createTable(client, isPg, isMy);
   tableReady = true;
 }
 
 export async function addEntry(name: string, email: string): Promise<void> {
   await ensureTable();
-  await (await getClient()).run("INSERT INTO waitlist (name, email) VALUES (?, ?)", [name || null, email]);
+  const client = await getClient();
+  if (isPg) {
+    await client.run("INSERT INTO waitlist (name, email) VALUES ($1, $2)", [name || null, email]);
+  } else {
+    await client.run("INSERT INTO waitlist (name, email) VALUES (?, ?)", [name || null, email]);
+  }
 }
 
 export async function getCount(): Promise<number> {
   await ensureTable();
-  return (await getClient()).count("SELECT COUNT(*) AS count FROM waitlist");
+  const client = await getClient();
+  const sql = isPg ? "SELECT COUNT(*)::int AS count FROM waitlist" : "SELECT COUNT(*) AS count FROM waitlist";
+  return client.count(sql);
 }
 
 export async function listEntries(): Promise<unknown[]> {
   await ensureTable();
-  return (await getClient()).all(
-    "SELECT id, name, email, created_at FROM waitlist ORDER BY created_at DESC LIMIT 500"
-  );
+  const client = await getClient();
+  const sql = isPg
+    ? "SELECT id, name, email, created_at FROM waitlist ORDER BY created_at DESC LIMIT 500"
+    : "SELECT id, name, email, created_at FROM waitlist ORDER BY created_at DESC LIMIT 500";
+  return client.all(sql);
 }
 
-export { USE_MYSQL };
+export { USE_POSTGRES, USE_MYSQL };

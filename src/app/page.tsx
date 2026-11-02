@@ -381,11 +381,11 @@ export default async function Home() {
           <Reveal>
             <p className="mono-label mb-8">Waitlist</p>
             <h2 className="display text-5xl md:text-7xl text-bone">
-              Be first in line<span className="accent">.</span>
+              Get early access<span className="accent">.</span>
             </h2>
             <p className="text-bone/55 text-lg leading-relaxed mt-8 max-w-md mx-auto">
-              Homie is on its way. Drop your email and we&apos;ll tell you the moment
-              it&apos;s ready.
+              Homie is on its way. Drop your email and we&apos;ll let you know the
+              moment it ships — be among the first to try it.
             </p>
           </Reveal>
 

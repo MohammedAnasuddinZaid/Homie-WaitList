@@ -9,6 +9,6 @@ export async function GET() {
     return NextResponse.json({ count });
   } catch (err) {
     console.error("waitlist count failed:", err);
-    return NextResponse.json({ count: 0 }, { status: 500 });
+    return NextResponse.json({ count: 0 });
   }
 }
